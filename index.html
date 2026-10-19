@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Калькулятор учебной нагрузки преподавателя</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--ink:#14284b;--mut:#5b6785;--line:#d9deea;--acc:#14284b;--ok:#1f7a4d;--warn:#a86a00;--bad:#b3261e;--okbg:#e3f3ea;--warnbg:#fbefd5;--badbg:#fbe4e2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1626;--card:#18223a;--ink:#e8ecf6;--mut:#9aa6c4;--line:#2d3957;--acc:#8fb0ff;--ok:#6fd1a0;--warn:#f0c060;--bad:#ff8a80;--okbg:#17372a;--warnbg:#3b2f12;--badbg:#42201d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1626;--card:#18223a;--ink:#e8ecf6;--mut:#9aa6c4;--line:#2d3957;--acc:#8fb0ff;--ok:#6fd1a0;--warn:#f0c060;--bad:#ff8a80;--okbg:#17372a;--warnbg:#3b2f12;--badbg:#42201d;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+main{max-width:880px;margin:0 auto;padding:20px 16px 48px}
+h1{font:700 28px/1.2 Georgia,"Times New Roman",serif;margin:8px 0 6px}
+h2{font:700 20px/1.3 Georgia,"Times New Roman",serif;margin:0 0 12px}
+.lead{color:var(--mut);margin:0 0 20px;max-width:62ch}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px}
+label{display:block;font-size:14px;color:var(--mut);margin-bottom:4px}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:9px 10px;min-height:42px}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.rows{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:1.2fr 1.6fr .7fr auto;gap:8px;align-items:end;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+button{font:inherit;font-weight:600;border-radius:6px;padding:9px 14px;min-height:42px;cursor:pointer;border:1px solid var(--acc);background:var(--acc);color:var(--bg)}
+button.sec{background:transparent;color:var(--acc)}
+button.del{background:transparent;color:var(--bad);border-color:var(--line);padding:9px 12px}
+.bar{height:16px;background:var(--bg);border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative}
+.fill{height:100%;width:0;background:var(--ok);transition:width .25s}
+.mark{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);left:100%}
+.status{display:inline-block;border-radius:6px;padding:6px 12px;font-weight:700;margin:12px 0 4px}
+.s-ok{background:var(--okbg);color:var(--ok)}.s-warn{background:var(--warnbg);color:var(--warn)}.s-bad{background:var(--badbg);color:var(--bad)}
+.big{font:700 34px/1.1 Georgia,serif}
+.sum{display:flex;gap:24px;flex-wrap:wrap;align-items:baseline;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.wrap{overflow-x:auto}
+details{margin-top:8px}summary{cursor:pointer;font-weight:600;color:var(--acc)}
+.note{font-size:14px;color:var(--mut)}
+textarea{width:100%;min-height:120px;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px}
+@media (max-width:640px){.row{grid-template-columns:1fr 1fr}.row .wide{grid-column:1/-1}h1{font-size:24px}}
+@media print{:root,:root:not([data-theme="light"]),:root[data-theme="dark"]{--bg:#fff;--card:#fff;--ink:#000;--mut:#444;--line:#999;--acc:#000;--ok:#1f7a4d;--warn:#a86a00;--bad:#b3261e;--okbg:#fff;--warnbg:#fff;--badbg:#fff;color-scheme:light}button,.noprint,section:has(details){display:none!important}body{background:#fff}section{break-inside:avoid}main{padding:0}.row{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+<h1>Калькулятор учебной нагрузки преподавателя</h1>
+<p class="lead">Добавьте виды работ за год и сравните сумму с нормой. Приложение покажет недогруз или перегруз. Преподаватель может проверить свою нагрузку и отправить готовый текст менеджеру. Менеджер может собрать несколько преподавателей в сводку внизу страницы. Данные хранятся только в вашем браузере и никуда не отправляются.</p>
+
+<section>
+<h2>Преподаватель</h2>
+<div class="grid">
+<div><label for="fio">ФИО (по желанию)</label><input id="fio" placeholder="Иванова Анна Петровна"></div>
+<div><label for="cat">Должность</label><select id="cat"></select></div>
+<div><label for="share">Доля ставки</label><select id="share"></select></div>
+<div><label for="norm">Норма на эту долю ставки, часов</label><input id="norm" type="number" min="1" step="1"></div>
+</div>
+<p class="note">Норма подставляется по должности. При необходимости измените число в поле нормы для конкретного преподавателя или значения по умолчанию в блоке «Настройки» ниже.</p>
+</section>
+
+<section>
+<h2>Виды работ</h2>
+<div class="rows" id="rows"></div>
+<p><button class="sec" id="add" type="button">Добавить строку</button></p>
+</section>
+
+<section aria-live="polite">
+<h2>Итог</h2>
+<div class="sum"><div><span class="big" id="total">0</span> <span>ч учтено из</span> <b id="normOut">0</b> ч</div></div>
+<div class="bar"><div class="fill" id="fill"></div><div class="mark" id="mark"></div></div>
+<div class="status" id="status"></div>
+<div class="note" id="detail"></div>
+<div class="wrap"><table><thead><tr><th>Вид работы</th><th class="n">Часы</th><th class="n">Учтено</th></tr></thead><tbody id="bytype"></tbody></table></div>
+<h2 style="margin-top:20px">Текст для сообщения или записки</h2>
+<textarea id="msg" readonly></textarea>
+<p><button type="button" id="copy">Скопировать текст</button> <button type="button" class="sec" id="printBtn">Печать или PDF</button> <span class="note" id="copied"></span></p>
+</section>
+
+<section>
+<details>
+<summary>Настройки: нормы по должностям и коэффициенты видов работ</summary>
+<p class="note">Коэффициент 1 значит, что час считается как есть. Например, коэффициент 1,5 для лекций увеличит учтённые часы в полтора раза.</p>
+<div class="grid" id="coefs"></div>
+<h2 style="margin-top:18px">Нормы по должностям (на 1 ставку)</h2>
+<div class="grid" id="norms"></div>
+</details>
+</section>
+<section id="summarySec">
+<h2>Сводка по преподавателям (для менеджера)</h2>
+<p class="note">Заполните нагрузку преподавателя выше и нажмите «Добавить в сводку». Данные хранятся только в этом браузере на вашем устройстве.</p>
+<p class="noprint"><button type="button" id="addSum">Добавить в сводку</button> <button type="button" class="sec" id="clrForm">Очистить форму для следующего</button></p>
+<div class="wrap"><table><thead><tr><th>ФИО</th><th>Должность</th><th class="n">Доля</th><th class="n">Норма, ч</th><th class="n">Учтено, ч</th><th>Статус</th><th class="noprint"></th></tr></thead><tbody id="sumBody"></tbody></table></div>
+<p class="noprint"><button type="button" class="sec" id="copyTab">Скопировать таблицу для Excel</button> <button type="button" class="sec" id="dlCsv">Скачать CSV</button> <button type="button" class="sec" id="clrSum">Очистить сводку</button> <span class="note" id="sumMsg"></span></p>
+</section>
+</main>
+<script>
+const types=["Лекции","Семинары","НИС","ОУФ","Майнор","Факультатив","Текущий контроль и экзамен","Инициативная нагрузка","Другое"];
+const per={"Курсовой проект (бакалавриат)":12,"ВКР (бакалавриат)":20,"Проект (магистратура)":25,"ВКР (магистратура)":35};
+const hrs=r=>(parseFloat(r.h)||0)*(r.t==="Инициативная нагрузка"?(per[r.s]||0):1);
+const initOpts=Object.keys(per);const evenT=["Лекции","Семинары"];
+const cats={"Профессор":600,"Доцент":700,"Старший преподаватель":750};
+const coef={};types.forEach(t=>coef[t]=1);coef["Лекции"]=2;coef["НИС"]=2;
+let rows=[{t:"Лекции",n:"",h:""},{t:"Семинары",n:"",h:""}];
+const $=id=>document.getElementById(id);
+const fmt=x=>(Math.round(x*10)/10).toString().replace(".",",");
+
+function fillCats(){
+  $("cat").innerHTML=Object.keys(cats).map(c=>`<option>${c}</option>`).join("");
+  $("share").innerHTML=[1,0.5,0.45,0.4,0.35,0.3,0.25,0.2,0.15,0.1].map(s=>`<option value="${s}">${String(s).replace(".",",")}</option>`).join("");
+  setNorm();
+}
+function setNorm(){const s=parseFloat($("share").value)||1;$("norm").value=Math.round(cats[$("cat").value]*s*100)/100;}
+function renderSettings(){
+  $("coefs").innerHTML=types.map(t=>`<div><label>${t}</label><input type="number" min="0" step="0.1" value="${coef[t]}" data-c="${t}"></div>`).join("");
+  $("norms").innerHTML=Object.keys(cats).map(c=>`<div><label>${c}, ч</label><input type="number" min="1" value="${cats[c]}" data-n="${c}"></div>`).join("");
+}
+function renderRows(){
+  $("rows").innerHTML=rows.map((r,i)=>`<div class="row">
+  <div><label>Вид работы</label><select data-i="${i}" data-f="t">${types.map(t=>`<option${t===r.t?" selected":""}>${t}</option>`).join("")}</select></div>
+  <div class="wide">${r.t==="Инициативная нагрузка"?`<label>Что именно</label><select data-i="${i}" data-f="s"><option value="">Выберите вариант</option>${initOpts.map(o=>`<option${o===r.s?" selected":""}>${o}</option>`).join("")}</select>`:`<label>Дисциплина или описание</label><input data-i="${i}" data-f="n" value="${r.n.replace(/"/g,"&quot;")}" placeholder="Например, Геоинформатика">`}</div>
+  <div><label>${r.t==="Инициативная нагрузка"?(per[r.s]?"Студентов (по "+per[r.s]+" ч)":"Студентов"):evenT.includes(r.t)?"Часы (чётное число)":"Часы"}</label><input type="number" min="0" step="${evenT.includes(r.t)?2:1}" data-i="${i}" data-f="h" value="${r.h}">${r.err&&evenT.includes(r.t)?'<div class="note" style="color:var(--bad)" role="alert">Нужно чётное число часов</div>':""}</div>
+  <button class="del" type="button" data-del="${i}" aria-label="Удалить строку">Удалить</button></div>`).join("");
+}
+function calc(){
+  const norm=parseFloat($("norm").value)||0;
+  const by={};let total=0;
+  rows.forEach(r=>{const h=hrs(r);if(!h)return;const w=h*(coef[r.t]??1);
+    by[r.t]=by[r.t]||{h:0,w:0};by[r.t].h+=h;by[r.t].w+=w;total+=w;});
+  $("total").textContent=fmt(total);$("normOut").textContent=fmt(norm);
+  const pct=norm?total/norm*100:0;
+  $("fill").style.width=Math.min(pct,100)+"%";
+  const f=$("fill");f.style.background=pct>100?"var(--bad)":pct<90?"var(--warn)":"var(--ok)";
+  $("mark").style.left="calc(100% - 2px)";
+  const st=$("status");let label,cls,diff=total-norm;
+  if(!norm){label="Укажите норму";cls="s-warn";}
+  else if(pct>100){label=`Перегруз: +${fmt(diff)} ч`;cls="s-bad";}
+  else if(pct<90){label=`Недогруз: ещё ${fmt(-diff)} ч до нормы`;cls="s-warn";}
+  else{label=diff===0?"Нагрузка равна норме":`В норме: осталось ${fmt(-diff)} ч`;cls="s-ok";}
+  st.className="status "+cls;st.textContent=label;
+  $("detail").textContent=norm?`Выполнение нормы: ${fmt(pct)}%. До 90% считается недогрузом, выше 100% перегрузом.`:"";
+  $("bytype").innerHTML=Object.keys(by).length?Object.keys(by).map(t=>`<tr><td>${t}</td><td class="n">${fmt(by[t].h)}</td><td class="n">${fmt(by[t].w)}</td></tr>`).join(""):`<tr><td colspan="3" class="note">Добавьте часы в блоке «Виды работ».</td></tr>`;
+  const fio=$("fio").value.trim()||"Преподаватель";
+  const lines=rows.filter(r=>hrs(r)).map(r=>`– ${r.t}${r.t==="Инициативная нагрузка"&&r.s?" ("+r.s+")":""}${r.n&&r.t!=="Инициативная нагрузка"?" («"+r.n+"»)":""}: ${r.t==="Инициативная нагрузка"?fmt(parseFloat(r.h))+" студ. × "+per[r.s]+" ч = ":""}${fmt(hrs(r))} ч`);
+  $("msg").value=`${fio}, ${$("cat").value.toLowerCase()}, доля ставки ${$("share").value.replace(".",",")}.\nНагрузка на год:\n${lines.join("\n")||"– пока не заполнена"}\n\nУчтено ${fmt(total)} ч при норме ${fmt(norm)} ч. ${label}.`;
+}
+$("cat").addEventListener("change",()=>{setNorm();calc();});
+$("share").addEventListener("change",()=>{setNorm();calc();});
+["norm","fio"].forEach(id=>$(id).addEventListener("input",calc));
+$("add").onclick=()=>{rows.push({t:"Семинары",n:"",h:""});renderRows();calc();};
+$("rows").addEventListener("input",e=>{const i=e.target.dataset.i;if(i===undefined)return;rows[i][e.target.dataset.f]=e.target.value;if(e.target.dataset.f==="t"||e.target.dataset.f==="s")renderRows();calc();});
+$("rows").addEventListener("click",e=>{const d=e.target.dataset.del;if(d===undefined)return;rows.splice(+d,1);if(!rows.length)rows.push({t:"Лекции",n:"",h:""});renderRows();calc();});
+document.addEventListener("input",e=>{
+  if(e.target.dataset.c){coef[e.target.dataset.c]=e.target.value===""?1:parseFloat(e.target.value);calc();}
+  if(e.target.dataset.n){cats[e.target.dataset.n]=parseFloat(e.target.value)||0;setNorm();calc();}
+});
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("msg").value);$("copied").textContent="Скопировано";}catch(e){$("msg").select();$("copied").textContent="Выделено. Нажмите Ctrl+C";}};
+let list=[];const KEY="nagruzka-v1";
+function save(){try{localStorage.setItem(KEY,JSON.stringify({fio:$("fio").value,cat:$("cat").value,share:$("share").value,norm:$("norm").value,rows,coef,cats,list}));}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(!s)return null;Object.assign(coef,s.coef||{});Object.assign(cats,s.cats||{});if(Array.isArray(s.rows)&&s.rows.length)rows=s.rows;list=Array.isArray(s.list)?s.list:[];return s;}catch(e){return null;}}
+const _calc=calc;calc=function(){_calc();save();};
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const c1=n=>(Math.round(n*10)/10).toString().replace(".",",");
+const shr=s=>String(s).replace(".",",");
+function totalNow(){let t=0;rows.forEach(r=>{t+=hrs(r)*(coef[r.t]??1);});return t;}
+function renderList(){$("sumBody").innerHTML=list.length?list.map((x,i)=>`<tr><td>${esc(x.fio)}</td><td>${esc(x.cat)}</td><td class="n">${shr(x.share)}</td><td class="n">${c1(x.norm)}</td><td class="n">${c1(x.total)}</td><td>${esc(x.status)}</td><td class="noprint"><button class="del" type="button" data-sd="${i}">Убрать</button></td></tr>`).join(""):`<tr><td colspan="7" class="note">Пока пусто. Заполните нагрузку преподавателя и нажмите «Добавить в сводку».</td></tr>`;}
+function tableRows(){return [["ФИО","Должность","Доля ставки","Норма, ч","Учтено, ч","Разница (учтено минус норма), ч","Выполнение нормы, %","Статус"]].concat(list.map(x=>[x.fio,x.cat,shr(x.share),c1(x.norm),c1(x.total),c1(x.total-x.norm),x.norm?c1(x.total/x.norm*100):"",x.status]));}
+$("addSum").onclick=()=>{list.push({fio:$("fio").value.trim()||"Без имени",cat:$("cat").value,share:$("share").value,norm:parseFloat($("norm").value)||0,total:totalNow(),status:$("status").textContent});save();renderList();$("sumMsg").textContent="Добавлено";};
+$("clrForm").onclick=()=>{rows=[{t:"Лекции",n:"",h:""},{t:"Семинары",n:"",h:""}];$("fio").value="";renderRows();calc();window.scrollTo(0,0);};
+$("clrSum").onclick=()=>{list=[];save();renderList();$("sumMsg").textContent="";};
+$("sumBody").addEventListener("click",e=>{const d=e.target.dataset.sd;if(d===undefined)return;list.splice(+d,1);save();renderList();});
+$("copyTab").onclick=async()=>{const t=tableRows().map(r=>r.join("\t")).join("\n");try{await navigator.clipboard.writeText(t);$("sumMsg").textContent="Скопировано. Вставьте в Excel (Ctrl+V)";}catch(e){$("sumMsg").textContent="Не удалось скопировать: браузер запретил доступ к буферу";}};
+$("dlCsv").onclick=()=>{try{const t="\ufeff"+tableRows().map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(";")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/csv;charset=utf-8"}));a.download="nagruzka.csv";document.body.appendChild(a);a.click();a.remove();$("sumMsg").textContent="Файл скачан, если браузер это разрешил. Если нет, используйте кнопку копирования.";}catch(e){$("sumMsg").textContent="Скачивание недоступно, используйте кнопку копирования";}};
+$("printBtn").onclick=()=>window.print();
+$("rows").addEventListener("change",e=>{const i=e.target.dataset.i;if(i===undefined||!rows[i])return;const r=rows[i],f=e.target.dataset.f;if(f==="t"&&r.err){r.err=false;renderRows();}if((f==="h"||f==="t")&&evenT.includes(r.t)){const v=parseFloat(r.h);if(v&&v%2!==0){r.h="";r.err=true;renderRows();calc();return;}}if(f==="h"&&r.err){r.err=false;renderRows();}});
+const st0=load();
+fillCats();renderSettings();
+if(st0){$("fio").value=st0.fio||"";if(cats[st0.cat])$("cat").value=st0.cat;$("share").value=st0.share||"1";if(st0.norm!==undefined&&st0.norm!=="")$("norm").value=st0.norm;}
+renderRows();calc();renderList();
+</script>
+</body>
+</html>
